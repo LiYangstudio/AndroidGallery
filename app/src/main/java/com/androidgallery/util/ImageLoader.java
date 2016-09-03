@@ -19,11 +19,13 @@ import java.util.concurrent.Semaphore;
  */
 public class ImageLoader {
     private LruCache<String, Bitmap> mMemoryCache;
-    private static ImageLoader mInstance ;
+    private static ImageLoader mInstance=new ImageLoader() ;
     private ExecutorService mImageThreadPool ;//设置了线程池
     private Handler mHandler;
     private LinkedList<Runnable> mRunnableList;
     public static final int ONE=0;
+    private static final int BIG_IMAGE=1;
+    private static final int SMALL_IMAGE=2;
 
     private volatile Semaphore mSemaphore;//设置信号量以便获取在线程池中加载的顺序
 
@@ -32,12 +34,12 @@ public class ImageLoader {
 
 
 
-    private ImageLoader(){
+    private  ImageLoader(){
         HandlerThread mHandlerThread=new HandlerThread("loading");
         mHandlerThread.start();
         mHandler=new Handler(mHandlerThread.getLooper()){
             @Override
-            public void handleMessage(Message msg) {
+            public  void handleMessage(Message msg) {
 
                 if(!mImageThreadPool.isShutdown()){
                     mImageThreadPool.execute(getLoadTask());
@@ -62,7 +64,7 @@ public class ImageLoader {
             //获取每张图片的大小
             @Override
             protected int sizeOf(String key, Bitmap bitmap) {
-                Log.d("每张图片大小","每张图片的大小"+bitmap.getRowBytes() * bitmap.getHeight() / 1024);
+               // Log.d("每张图片大小","每张图片的大小"+bitmap.getRowBytes() * bitmap.getHeight() / 1024);
                 return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
             }
         };
@@ -73,31 +75,22 @@ public class ImageLoader {
 
      */
     public static ImageLoader getInstance(){
-        mInstance = new ImageLoader();
+        //mInstance = new ImageLoader();
+
         return mInstance;
     }
 
 
-    /**
-     * 加载本地图片
-     *
-     */
-    public Bitmap loadNativeImage(final String path, final ImageCallBack mCallBack){
-        return this.loadNativeImage(path, null, mCallBack);
-    }
+
 
     /**
      * 此方法来加载本地图片，这里的mPoint是用来封装ImageView的宽和高，根据自定义的ImageView控件的大小来裁剪Bitmap
      *
      *
      */
-    public Bitmap loadNativeImage(final String path, final Point mPoint, final ImageCallBack mCallBack) {
+    public  Bitmap loadNativeImage(final String path, final Point mPoint, final ImageCallBack mCallBack) {
         //先获取内存中的Bitmap
         Bitmap bitmap = getBitmapFromMemCache(path);
-
-
-
-
 
 
 
@@ -123,10 +116,12 @@ public class ImageLoader {
                 @Override
                 public void run() {
                     //先获取图片的缩略图
-                    Bitmap mBitmap = decodeThumbBitmapForFile(path, mPoint == null ? 0: mPoint.x, mPoint == null ? 0: mPoint.y);
+                    Bitmap mBitmap = decodeThumbBitmapForFile(path, mPoint == null ? 0: mPoint.x, mPoint == null ? 0: mPoint.y,SMALL_IMAGE);
                     Message msg = mHander.obtainMessage();
                     msg.obj = mBitmap;
                     mHander.sendMessage(msg);
+                    Log.d("信号量发送正常","信号量发送正常");
+
                     mSemaphore.release();
 
                     //将图片加入到内存缓存
@@ -147,7 +142,9 @@ public class ImageLoader {
      */
     private void addBitmapToMemoryCache(String key, Bitmap bitmap) {
         if (getBitmapFromMemCache(key) == null && bitmap != null) {
+            Log.d("每一张被添加的图片缓存","每一张被添加的图片缓存"+key);
             mMemoryCache.put(key, bitmap);
+
         }
     }
 
@@ -164,16 +161,17 @@ public class ImageLoader {
      * 根据自定义ImageView的宽和高来获取图片的缩略图
 
      */
-    private  Bitmap decodeThumbBitmapForFile(String path, int viewWidth, int viewHeight){
+    private  Bitmap decodeThumbBitmapForFile(String path, int viewWidth, int viewHeight,int type){
         BitmapFactory.Options options = new BitmapFactory.Options();
         //设置为true,表示解析Bitmap对象
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options);
         //设置缩放比例
-        options.inSampleSize = computeScale(options, viewWidth, viewHeight);
+        options.inSampleSize = computeScale(options, viewWidth, viewHeight,type);
 
         //设置为false,解析Bitmap对象加入到内存中
         options.inJustDecodeBounds = false;
+
 
         return BitmapFactory.decodeFile(path, options);
     }
@@ -183,22 +181,31 @@ public class ImageLoader {
      * 根据View(主要是ImageView)的宽和高来计算Bitmap缩放比例。默认不缩放
 
      */
-    private int computeScale(BitmapFactory.Options options, int viewWidth, int viewHeight){
+    private int computeScale(BitmapFactory.Options options, int viewWidth, int viewHeight,int type){
         int inSampleSize = 1;
-        if(viewWidth == 0 || viewWidth == 0){
-            return inSampleSize;
-        }
         int bitmapWidth = options.outWidth;
         int bitmapHeight = options.outHeight;
 
-        //当Bitmap的宽度或高度大于我们设定图片的View的宽高，则计算缩放比例，否则不执行
-        if(bitmapWidth > viewWidth || bitmapHeight > viewWidth){
-            int widthScale = Math.round((float) bitmapWidth / (float) viewWidth);
-            int heightScale = Math.round((float) bitmapHeight / (float) viewWidth);
+        if(type==SMALL_IMAGE) {
 
-            //为了保证图片不缩放变形，取宽高比例最小的那个
-            inSampleSize = widthScale < heightScale ? widthScale : heightScale;
+            if (viewWidth == 0 || viewWidth == 0) {
+                return inSampleSize;
+            }
+
+
+            //当Bitmap的宽度或高度大于我们设定图片的View的宽高，则计算缩放比例，否则不执行
+            if (bitmapWidth > viewWidth || bitmapHeight > viewWidth) {
+                int widthScale = Math.round((float) bitmapWidth / (float) viewWidth);
+                int heightScale = Math.round((float) bitmapHeight / (float) viewWidth);
+
+                //为了保证图片不缩放变形，取宽高比例最小的那个
+                inSampleSize = widthScale < heightScale ? widthScale : heightScale;
+            }
         }
+        else{
+            inSampleSize=bitmapHeight/bitmapWidth;
+        }
+
         return inSampleSize;
     }
 
@@ -214,21 +221,70 @@ public class ImageLoader {
          */
         public  void onImageLoader(Bitmap bitmap, String path);
     }
-    private void addList(Runnable runnable){
+    private  void addList(Runnable runnable){
         mRunnableList=new LinkedList<Runnable>();
         mRunnableList.add(runnable);
         mHandler.sendEmptyMessage(ONE);
     }
 
-    private Runnable getLoadTask(){
+    private  Runnable getLoadTask(){
         try {
             mSemaphore.acquire();//获取信号量，获取不到则阻塞，即当线程池中的主要线程释放时开始执行
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+
+
+
         return mRunnableList.removeLast();//从任务队列的最后一个开始取
     }
-}
+
+
+    public void LoadDetail(final String path, final Point mPoint, final ImageCallBack mCallBack){
+
+        final Handler mHander = new Handler(){
+
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                mCallBack.onImageLoader((Bitmap)msg.obj, path);
+
+            }
+
+
+        };
+
+
+
+
+        //若该Bitmap不在内存缓存中，则启用线程去加载本地的图片，并将Bitmap加入到mMemoryCache中
+
+
+            addList(new Runnable() {
+
+                @Override
+                public void run() {
+                    //先获取图片的缩略图
+                    Bitmap mBitmap = decodeThumbBitmapForFile(path,  mPoint.x, mPoint.y,BIG_IMAGE);
+                    Message msg = mHander.obtainMessage();
+                    msg.obj = mBitmap;
+                    mHander.sendMessage(msg);
+                    Log.d("发信息了","发信息了");
+
+                    mSemaphore.release();
+
+                    //将图片加入到内存缓存
+                    addBitmapToMemoryCache(path, mBitmap);
+                }
+            });
+
+        }
+
+
+    }
+
+
+
 
 

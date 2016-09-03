@@ -24,6 +24,7 @@
         </activity>
 
         <activity android:name="com.androidgallery.activity.ImageGroupActivity"></activity>
+        <activity android:name=".activity.ImagePageActivity"></activity>
     </application>
 
 

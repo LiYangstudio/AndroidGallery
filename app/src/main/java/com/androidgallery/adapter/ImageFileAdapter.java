@@ -16,8 +16,11 @@ import com.androidgallery.R;
 import com.androidgallery.util.CustomizeImageView;
 import com.androidgallery.util.ImageLoader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by A555LF on 2016/8/2.
@@ -25,7 +28,8 @@ import java.util.List;
 public class ImageFileAdapter extends BaseAdapter {
     private Point mPoint = new Point(0, 0);//用point来封装图片的宽和高的信息
 
-    private HashMap<Integer, Boolean> mSelectMap ;
+    private HashMap<String, Boolean> mSelectMap= new HashMap<String, Boolean>() ;
+
     private GridView mGridView;
     private List<String> list;
     protected LayoutInflater mInflater;
@@ -86,12 +90,15 @@ public class ImageFileAdapter extends BaseAdapter {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mSelectMap = new HashMap<Integer, Boolean>();
-                mSelectMap.put(position, isChecked);
-            }
+             //   mSelectMap = new HashMap<String, Boolean>();
+                mSelectMap.put(list.get(position), isChecked);
+
+        }
         });
 
-        viewHolder.mCheckBox.setChecked(mSelectMap.containsKey(position) ? mSelectMap.get(position) : false);
+
+
+        viewHolder.mCheckBox.setChecked(mSelectMap.containsKey(list.get(position)) ? mSelectMap.get(list.get(position)) : false);
 
 
         Bitmap bitmap = ImageLoader.getInstance().loadNativeImage(path, mPoint, new ImageLoader.ImageCallBack() {
@@ -99,8 +106,6 @@ public class ImageFileAdapter extends BaseAdapter {
             @Override
             public void onImageLoader(Bitmap bitmap, String path) {
 
-                //mBitmap=bitmap;
-                //mPath=path;
 
                 ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
                 if(bitmap != null && mImageView != null) {
@@ -112,9 +117,6 @@ public class ImageFileAdapter extends BaseAdapter {
 
         });
 
-
-
-
         if(bitmap != null){
             viewHolder.mImageView.setImageBitmap(bitmap);
         }else{
@@ -123,6 +125,16 @@ public class ImageFileAdapter extends BaseAdapter {
         }
 
         return convertView;
+    }
+    public List<String> getSelectItems(){
+        List<String> list=new ArrayList<String>();
+        for(Iterator<Map.Entry<String,Boolean>> it=mSelectMap.entrySet().iterator();it.hasNext();){
+            Map.Entry<String,Boolean> entry=it.next();
+            if(entry.getValue()){
+                list.add(entry.getKey());
+            }
+        }
+        return list;
     }
 
 

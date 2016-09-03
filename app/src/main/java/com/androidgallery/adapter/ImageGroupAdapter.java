@@ -3,7 +3,6 @@ package com.androidgallery.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +95,9 @@ public class ImageGroupAdapter extends BaseAdapter {
                     public void onImageLoader(Bitmap bitmap, String path) {
 
 
+
+
+
                         ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
                         if(bitmap != null && mImageView != null) {
                             mImageView.setImageBitmap(bitmap);
@@ -112,7 +114,7 @@ public class ImageGroupAdapter extends BaseAdapter {
             viewHolder.mImageView.setImageBitmap(bitmap);
 
         }else{
-            Log.d("找不到图片","找不到图片的方法被执行");
+
             viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
 

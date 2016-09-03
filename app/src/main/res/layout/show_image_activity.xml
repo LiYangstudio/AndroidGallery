@@ -3,6 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/button_selected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="按钮"/>
 
     <GridView
         android:id="@+id/child_grid"
@@ -18,5 +27,8 @@
         android:columnWidth="90dip"
         android:numColumns="auto_fit" >
     </GridView>
+
+
+    </LinearLayout>
 
 </RelativeLayout>
