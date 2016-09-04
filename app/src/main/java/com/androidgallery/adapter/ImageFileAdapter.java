@@ -3,6 +3,7 @@ package com.androidgallery.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,12 +29,11 @@ import java.util.Map;
 public class ImageFileAdapter extends BaseAdapter {
     private Point mPoint = new Point(0, 0);//用point来封装图片的宽和高的信息
 
-    private HashMap<String, Boolean> mSelectMap= new HashMap<String, Boolean>() ;
+    private HashMap<String, Boolean> mSelectMap = new HashMap<String, Boolean>();
 
     private GridView mGridView;
     private List<String> list;
     protected LayoutInflater mInflater;
-
 
 
     public ImageFileAdapter(Context context, List<String> list, GridView mGridView) {
@@ -65,7 +65,7 @@ public class ImageFileAdapter extends BaseAdapter {
 
         String path = list.get(position);
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = mInflater.inflate(R.layout.grid_child_item, null);
             viewHolder = new ViewHolder();
             viewHolder.mImageView = (CustomizeImageView) convertView.findViewById(R.id.child_image);
@@ -81,7 +81,7 @@ public class ImageFileAdapter extends BaseAdapter {
             });
 
             convertView.setTag(viewHolder);
-        }else{
+        } else {
             viewHolder = (ViewHolder) convertView.getTag();
             //  viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
@@ -90,12 +90,11 @@ public class ImageFileAdapter extends BaseAdapter {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-             //   mSelectMap = new HashMap<String, Boolean>();
+                //   mSelectMap = new HashMap<String, Boolean>();
                 mSelectMap.put(list.get(position), isChecked);
 
-        }
+            }
         });
-
 
 
         viewHolder.mCheckBox.setChecked(mSelectMap.containsKey(list.get(position)) ? mSelectMap.get(list.get(position)) : false);
@@ -105,10 +104,11 @@ public class ImageFileAdapter extends BaseAdapter {
 
             @Override
             public void onImageLoader(Bitmap bitmap, String path) {
+                Log.d("图片已经传回","图片已经传回");
 
 
                 ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
-                if(bitmap != null && mImageView != null) {
+                if (bitmap != null && mImageView != null) {
                     mImageView.setImageBitmap(bitmap);
                 }
 
@@ -117,20 +117,22 @@ public class ImageFileAdapter extends BaseAdapter {
 
         });
 
-        if(bitmap != null){
+        if (bitmap != null) {
+            Log.d("运行到外面","运行到外面");
             viewHolder.mImageView.setImageBitmap(bitmap);
-        }else{
+        } else {
 
             viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
 
         return convertView;
     }
-    public List<String> getSelectItems(){
-        List<String> list=new ArrayList<String>();
-        for(Iterator<Map.Entry<String,Boolean>> it=mSelectMap.entrySet().iterator();it.hasNext();){
-            Map.Entry<String,Boolean> entry=it.next();
-            if(entry.getValue()){
+
+    public List<String> getSelectItems() {
+        List<String> list = new ArrayList<String>();
+        for (Iterator<Map.Entry<String, Boolean>> it = mSelectMap.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, Boolean> entry = it.next();
+            if (entry.getValue()) {
                 list.add(entry.getKey());
             }
         }
@@ -138,12 +140,10 @@ public class ImageFileAdapter extends BaseAdapter {
     }
 
 
-
-    public static class ViewHolder{
+    public static class ViewHolder {
         public CustomizeImageView mImageView;
         public CheckBox mCheckBox;
     }
-
 
 
 }

@@ -24,42 +24,46 @@ public class ImagePageActivity extends Activity implements ViewPager.OnPageChang
     private int mLevel;
     private SparseArray<ImageView> mViewArray;
 
-    public static void startMe(Context context,List<String> mSelectedList,int position){
-        Intent intent=new Intent(context,ImagePageActivity.class);
-        intent.putStringArrayListExtra("SelectedImageList",(ArrayList<String>) mSelectedList);
-        intent.putExtra("level",position);
+    public static void startMe(Context context, List<String> mSelectedList, int position) {
+        Intent intent = new Intent(context, ImagePageActivity.class);
+        intent.putStringArrayListExtra("SelectedImageList", (ArrayList<String>) mSelectedList);
+        intent.putExtra("level", position);
         context.startActivity(intent);
 
 
-        }
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.image_viewpage);
         init();
 
 
-
     }
-    private void init(){
- ViewPager viewPager=(ViewPager)findViewById(R.id.activity_vp_detail);
-   mList=getIntent().getStringArrayListExtra("SelectedImageList");
-        mLevel=getIntent().getIntExtra("level",0);
-        mViewArray=new SparseArray<ImageView>();
-        ImageViewPagerAdapter imageViewPagerAdapter=new ImageViewPagerAdapter(mList,mViewArray);
+
+    private void init() {
+        ViewPager viewPager = (ViewPager) findViewById(R.id.activity_vp_detail);
+        mList = getIntent().getStringArrayListExtra("SelectedImageList");
+        mLevel = getIntent().getIntExtra("level", 0);
+        mViewArray = new SparseArray<ImageView>();
+        ImageViewPagerAdapter imageViewPagerAdapter = new ImageViewPagerAdapter(mList, mViewArray);
         viewPager.setAdapter(imageViewPagerAdapter);
         viewPager.setCurrentItem(mLevel);
         viewPager.setOnPageChangeListener(this);
 
     }
+
     public void onPageSelected(int position) {
 
     }
+
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
     }
+
     @Override
     public void onPageScrollStateChanged(int state) {
 

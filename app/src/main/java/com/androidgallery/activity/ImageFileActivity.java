@@ -68,7 +68,7 @@ public class ImageFileActivity extends Activity{
 
 
     /**
-     * 利用ContentProvider扫描手机中的图片，此方法在运行在子线程中
+     * 利用ContentProvider扫描手机中的图片。
      */
     private void getImages() {
         if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){

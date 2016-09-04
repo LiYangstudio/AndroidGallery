@@ -44,7 +44,7 @@ public class ImageGroupAdapter extends BaseAdapter {
         return position;
     }
 
-    public ImageGroupAdapter(Context context, List<ImageBean> list, GridView mGridView){
+    public ImageGroupAdapter(Context context, List<ImageBean> list, GridView mGridView) {
         this.list = list;
         this.mGridView = mGridView;
         mInflater = LayoutInflater.from(context);
@@ -59,7 +59,7 @@ public class ImageGroupAdapter extends BaseAdapter {
 
         String path = mImageBean.getTopImagePath();
 
-        if(convertView == null){
+        if (convertView == null) {
             viewHolder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.grid_group_item, null);
             viewHolder.mImageView = (CustomizeImageView) convertView.findViewById(R.id.group_image);
@@ -67,7 +67,7 @@ public class ImageGroupAdapter extends BaseAdapter {
             viewHolder.mTextViewCounts = (TextView) convertView.findViewById(R.id.group_count);
 
             //用来监听ImageView的宽和高
-            viewHolder.mImageView.setOnMeasureListener( new CustomizeImageView.OnMeasureListener() {
+            viewHolder.mImageView.setOnMeasureListener(new CustomizeImageView.OnMeasureListener() {
 
                 @Override
                 public void onMeasureSize(int width, int height) {
@@ -76,7 +76,7 @@ public class ImageGroupAdapter extends BaseAdapter {
             });
 
             convertView.setTag(viewHolder);
-        }else{
+        } else {
             viewHolder = (ViewHolder) convertView.getTag();
             viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
@@ -95,11 +95,8 @@ public class ImageGroupAdapter extends BaseAdapter {
                     public void onImageLoader(Bitmap bitmap, String path) {
 
 
-
-
-
                         ImageView mImageView = (ImageView) mGridView.findViewWithTag(path);
-                        if(bitmap != null && mImageView != null) {
+                        if (bitmap != null && mImageView != null) {
                             mImageView.setImageBitmap(bitmap);
                         }
 
@@ -108,12 +105,10 @@ public class ImageGroupAdapter extends BaseAdapter {
                 });
 
 
-
-
-        if(bitmap != null){
+        if (bitmap != null) {
             viewHolder.mImageView.setImageBitmap(bitmap);
 
-        }else{
+        } else {
 
             viewHolder.mImageView.setImageResource(R.drawable.friends_sends_pictures_no);
         }
@@ -123,15 +118,11 @@ public class ImageGroupAdapter extends BaseAdapter {
     }
 
 
-
-    public static class ViewHolder{
+    public static class ViewHolder {
         public CustomizeImageView mImageView;
         public TextView mTextViewTitle;
         public TextView mTextViewCounts;
     }
-
-
-
 
 
 }

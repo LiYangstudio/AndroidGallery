@@ -33,7 +33,9 @@ public class CustomizeImageView extends ImageView {
             }
         }
 
-        public interface OnMeasureListener{
+
+
+    public interface OnMeasureListener{
             public void onMeasureSize(int width, int height);
         }
 
