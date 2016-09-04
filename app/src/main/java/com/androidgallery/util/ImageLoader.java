@@ -19,7 +19,7 @@ import java.util.concurrent.Semaphore;
  */
 public class ImageLoader {
     private LruCache<String, Bitmap> mMemoryCache;
-    private static ImageLoader mInstance=new ImageLoader() ;
+    private static ImageLoader mInstance ;
     private ExecutorService mImageThreadPool ;//设置了线程池
     private Handler mHandler;
     private LinkedList<Runnable> mRunnableList;
@@ -34,9 +34,10 @@ public class ImageLoader {
 
 
 
-    private  ImageLoader(){
+    private    ImageLoader(){
         HandlerThread mHandlerThread=new HandlerThread("loading");
         mHandlerThread.start();
+
         mHandler=new Handler(mHandlerThread.getLooper()){
             @Override
             public  void handleMessage(Message msg) {
@@ -47,6 +48,7 @@ public class ImageLoader {
 
 
         };
+
         mImageThreadPool= Executors.newFixedThreadPool(5);
         mSemaphore=new Semaphore(5);
 
@@ -75,7 +77,12 @@ public class ImageLoader {
 
      */
     public static ImageLoader getInstance(){
-        //mInstance = new ImageLoader();
+
+          if(mInstance==null){
+              Log.d("执行了一次","执行了一次");
+              mInstance=new ImageLoader();
+          }
+
 
         return mInstance;
     }
@@ -122,7 +129,7 @@ public class ImageLoader {
                     mHander.sendMessage(msg);
                     Log.d("信号量发送正常","信号量发送正常");
 
-                    mSemaphore.release();
+
 
                     //将图片加入到内存缓存
                     addBitmapToMemoryCache(path, mBitmap);
@@ -225,17 +232,18 @@ public class ImageLoader {
         mRunnableList=new LinkedList<Runnable>();
         mRunnableList.add(runnable);
         mHandler.sendEmptyMessage(ONE);
+        mSemaphore.release();
     }
 
-    private  Runnable getLoadTask(){
+    private    Runnable getLoadTask(){
         try {
             mSemaphore.acquire();//获取信号量，获取不到则阻塞，即当线程池中的主要线程释放时开始执行
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
-
+        if(mRunnableList.size()==0){
+            Log.d("容器是空的","容器是空的");
+        }
 
         return mRunnableList.removeLast();//从任务队列的最后一个开始取
     }
@@ -270,7 +278,7 @@ public class ImageLoader {
                     Message msg = mHander.obtainMessage();
                     msg.obj = mBitmap;
                     mHander.sendMessage(msg);
-                    Log.d("发信息了","发信息了");
+
 
                     mSemaphore.release();
 

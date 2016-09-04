@@ -19,7 +19,7 @@ import java.util.List;
  * Created by A555LF on 2016/8/29.
  */
 public class ImagePageActivity extends Activity implements ViewPager.OnPageChangeListener {
-    private ImageViewPagerAdapter mImageViewPagerAdapter;
+
     private List<String> mList;
     private int mLevel;
     private SparseArray<ImageView> mViewArray;
